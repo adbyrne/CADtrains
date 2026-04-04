@@ -7,6 +7,7 @@ FreeCAD parametric designs for model railroad rolling stock and station structur
 | Project | Description |
 |---------|-------------|
 | [Caboose](Caboose/) | Interior detail components for a caboose car |
+| [CokeOvens](CokeOvens/) | HO scale modular bank coke oven bank (C&O Railway, circa 1900 WV coalfields) |
 | [Station](Station/) | Station building structure |
 | [StationPlatform](StationPlatform/) | Parametric station platform; dimensions driven by embedded FreeCAD spreadsheet |
 
