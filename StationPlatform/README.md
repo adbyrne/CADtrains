@@ -2,6 +2,8 @@
 
 3D-printable station platform for a model railroad layout. Uses a FreeCAD embedded spreadsheet for parametric dimensions, allowing easy resizing.
 
+![StationPlatform ISO view](images/stationplatform_iso.png)
+
 ## Parts
 
 - **StationPlatform** — Full platform assembly

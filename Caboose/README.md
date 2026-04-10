@@ -2,6 +2,8 @@
 
 3D-printable caboose interior components for a model railroad caboose car.
 
+![Caboose ISO view](images/caboose_iso.png)
+
 ## Parts
 
 - **BobCabInterior** — Interior detail for Bob's caboose

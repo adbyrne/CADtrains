@@ -2,6 +2,8 @@
 
 FreeCAD design for a model railroad station structure.
 
+![Station ISO view](images/station_iso.png)
+
 ## Quick Start
 
 ### Print Settings
