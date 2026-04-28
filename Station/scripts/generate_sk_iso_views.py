@@ -20,6 +20,13 @@ TARGETS = [
     "SK_FloorBasic",
     "SK_FloorBasic_Plain",
     "SK_CeilingFull",
+    "Std_GableWall",
+    "Std_SidingWall",
+    "Std_PassengerWall",
+    "Std_FloorBasic",
+    "Std_FloorBasic_Plain",
+    "Std_CeilingFull",
+    "Std_RoofPanels",
 ]
 
 for doc_name in TARGETS:

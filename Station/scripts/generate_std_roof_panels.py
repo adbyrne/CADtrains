@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""
+Standard station — production roof panel prints.
+Long panel (×2 identical — flip one 180° for passenger side; tabs interlock).
+Hip panel (×2 identical).
+Print orientation: outer face down on build plate, ribs face up.
+
+Long panel features:
+  - Body + ribs + ridge tabs (4 sections × 25%, tabs at 0-25% and 50-75%)
+    Flipping panel 180° inverts tab pattern to 25-50% and 75-100% — panels interlock.
+  - Eave rib (first rib) angled at roof pitch so outer face mates flush with ceiling/eave top
+  - 1×1mm rabbet ledge on hip edges
+
+Hip panel features:
+  - Body + ribs tapering toward apex
+  - Eave rib angled at hip-panel pitch
+
+Output:
+  FCStd: CADtrains/Station/freecad/Std_RoofPanels.FCStd
+  STL:   CADtrains/Station/printed_files/Std_RoofPanel_Long.stl  (print ×2, flip one)
+  STL:   CADtrains/Station/printed_files/Std_RoofPanel_Hip.stl   (print ×2)
+  PNG:   CADtrains/Station/images/Std_RoofPanels_ISO.png
+"""
+
+import xmlrpc.client, sys
+proxy = xmlrpc.client.ServerProxy("http://localhost:9875")
+
+CODE = '''
+import FreeCAD, Part, MeshPart, math
+
+def ft(f, i=0): return (f*12+i)*25.4/87.0
+V = FreeCAD.Vector
+
+# ---- Shared dims (standard variant) -----------------------------------------
+WALL_T = 2.0;  WALL_H = ft(10,6);  BLDG_D = ft(15,0)   # 52.55mm
+BLDG_L = ft(15,2)+ft(10,2)+ft(26,6)+4*WALL_T            # 189.60mm
+EAVE_SIDE = 24.0;  EAVE_END = 11.0
+PITCH = 5/12;  HALF_SPAN = BLDG_D/2
+RIDGE_H = HALF_SPAN*PITCH;  RIDGE_Z = WALL_H+RIDGE_H
+RIDGE_X0 = HALF_SPAN;  RIDGE_X1 = BLDG_L-HALF_SPAN
+RIDGE_L = RIDGE_X1 - RIDGE_X0
+ESP = EAVE_SIDE+1.0;  EEP = EAVE_END+1.0
+z_hip = WALL_H - math.sqrt(EEP**2+ESP**2)*RIDGE_H/(HALF_SPAN*math.sqrt(2))
+
+PANEL_T = 2.0;  RIB_H = 4.0;  RIB_W = 1.5;  RIB_SP = 14.0
+TAB_W = 2.5;  TAB_H = 1.0
+RABBET_W = 1.0;  RABBET_D = 1.0
+
+# ---- Long panel dims
+eave_w  = BLDG_L + 2*EEP
+ridge_w = RIDGE_L
+hip_ovh = (eave_w - ridge_w) / 2
+s_dy = BLDG_D/2 - (-ESP)
+s_dz = RIDGE_Z - z_hip
+s_len = math.sqrt(s_dy**2 + s_dz**2)
+LONG_TAPER = s_dz / s_len
+
+print(f"Std Roof Panels  BLDG_L={BLDG_L:.2f}  BLDG_D={BLDG_D:.2f}")
+print(f"RIDGE_H={RIDGE_H:.2f}  RIDGE_L={RIDGE_L:.2f}")
+print(f"Long panel: eave_w={eave_w:.1f}  ridge_w={ridge_w:.1f}  s_len={s_len:.2f}  taper={LONG_TAPER:.4f}")
+
+def lp_xl(y): return -hip_ovh * (1.0 - y/s_len)
+def lp_xr(y): return  ridge_w + hip_ovh * (1.0 - y/s_len)
+
+def cut_rabbet(body, x1, y1, x2, y2, inx, iny):
+    A=V(x1,               y1,               PANEL_T-RABBET_D)
+    B=V(x2,               y2,               PANEL_T-RABBET_D)
+    C=V(x2+inx*RABBET_W,  y2+iny*RABBET_W,  PANEL_T-RABBET_D)
+    D=V(x1+inx*RABBET_W,  y1+iny*RABBET_W,  PANEL_T-RABBET_D)
+    return body.cut(Part.Face(Part.makePolygon([A,B,C,D,A])).extrude(V(0,0,RABBET_D)))
+
+def make_flat_rib(xl, xr, d):
+    hw = RIB_W/2
+    r1=V(xl,d-hw,PANEL_T); r2=V(xr,d-hw,PANEL_T)
+    r3=V(xr,d+hw,PANEL_T); r4=V(xl,d+hw,PANEL_T)
+    return Part.Face(Part.makePolygon([r1,r2,r3,r4,r1])).extrude(V(0,0,RIB_H))
+
+def make_wedge_rib(xl_fn, xr_fn, d, taper):
+    W  = RIB_H / taper
+    xl = xl_fn(d + W)
+    xr = xr_fn(d + W)
+    P1 = V(xl, d,   PANEL_T)
+    P2 = V(xl, d+W, PANEL_T)
+    P3 = V(xl, d+W, PANEL_T+RIB_H)
+    return Part.Face(Part.makePolygon([P1,P2,P3,P1])).extrude(V(xr-xl, 0, 0))
+
+def make_long_panel():
+    P1=V(lp_xl(0),     0,     0)
+    P2=V(lp_xr(0),     0,     0)
+    P3=V(lp_xr(s_len), s_len, 0)
+    P4=V(lp_xl(s_len), s_len, 0)
+    body = Part.Face(Part.makePolygon([P1,P2,P3,P4,P1])).extrude(V(0,0,PANEL_T))
+
+    d = RIB_SP/2
+    body = body.fuse(make_wedge_rib(lp_xl, lp_xr, d, LONG_TAPER))
+    d += 2*RIB_SP
+
+    n_ribs = 0
+    while d < s_len - RIB_SP/2:
+        body = body.fuse(make_flat_rib(lp_xl(d), lp_xr(d), d))
+        d += RIB_SP;  n_ribs += 1
+
+    seg = ridge_w / 4
+    y0  = s_len - TAB_W
+    for i in [0, 2]:
+        x0=i*seg; x1=(i+1)*seg
+        t1=V(x0,y0,PANEL_T); t2=V(x1,y0,PANEL_T)
+        t3=V(x1,s_len,PANEL_T); t4=V(x0,s_len,PANEL_T)
+        body = body.fuse(Part.Face(Part.makePolygon([t1,t2,t3,t4,t1])).extrude(V(0,0,TAB_H)))
+    for i in [1, 3]:
+        x0=i*seg; x1=(i+1)*seg
+        r1=V(x0,y0,PANEL_T-TAB_H); r2=V(x1,y0,PANEL_T-TAB_H)
+        r3=V(x1,s_len,PANEL_T-TAB_H); r4=V(x0,s_len,PANEL_T-TAB_H)
+        body = body.cut(Part.Face(Part.makePolygon([r1,r2,r3,r4,r1])).extrude(V(0,0,TAB_H)))
+
+    e_len = math.sqrt(hip_ovh**2 + s_len**2)
+    body = cut_rabbet(body, -hip_ovh, 0,          0,       s_len,
+                       s_len/e_len, -hip_ovh/e_len)
+    body = cut_rabbet(body, ridge_w+hip_ovh, 0, ridge_w, s_len,
+                      -s_len/e_len, -hip_ovh/e_len)
+
+    print(f"  Long: {n_ribs} flat + 1 wedge ribs, half-lap tabs/recesses (0-25%/50-75%), rabbets")
+    return body
+
+# ---- Hip panel
+hip_base = 2*ESP + BLDG_D
+hip_dx   = RIDGE_X0 + EEP
+hip_dy   = BLDG_D/2 + ESP
+hip_dz   = RIDGE_Z - z_hip
+hip_side = math.sqrt(hip_dx**2 + hip_dy**2 + hip_dz**2)
+hip_h    = math.sqrt(hip_side**2 - (hip_base/2)**2)
+HIP_TAPER = hip_dz / hip_h
+
+print(f"Hip panel: base={hip_base:.1f}  h={hip_h:.2f}  taper={HIP_TAPER:.4f}")
+
+def hp_xl(y):
+    w = hip_base * (1.0 - y/hip_h)
+    return (hip_base - w) / 2.0
+
+def hp_xr(y):
+    w = hip_base * (1.0 - y/hip_h)
+    return (hip_base + w) / 2.0
+
+def make_hip_panel():
+    P1=V(0,          0,     0)
+    P2=V(hip_base,   0,     0)
+    P3=V(hip_base/2, hip_h, 0)
+    body = Part.Face(Part.makePolygon([P1,P2,P3,P1])).extrude(V(0,0,PANEL_T))
+
+    d = RIB_SP/2
+    body = body.fuse(make_wedge_rib(hp_xl, hp_xr, d, HIP_TAPER))
+    d += RIB_SP
+
+    print(f"  Hip: 1 wedge rib only")
+    return body
+
+print("Building long panel...")
+long_panel = make_long_panel()
+print("Building hip panel...")
+hip_panel = make_hip_panel()
+
+# ---- Document
+BASE     = "/home/abyrne/Projects/Trains/CADtrains/Station/"
+fc_path  = BASE + "freecad/Std_RoofPanels.FCStd"
+stl_long = BASE + "printed_files/Std_RoofPanel_Long.stl"
+stl_hip  = BASE + "printed_files/Std_RoofPanel_Hip.stl"
+img_path = BASE + "images/Std_RoofPanels_ISO.png"
+
+try: FreeCAD.closeDocument("Std_RoofPanels")
+except: pass
+doc = FreeCAD.newDocument("Std_RoofPanels")
+
+def add(name, shape, color, offset=None):
+    s = shape.copy()
+    if offset: s.translate(offset)
+    obj = doc.addObject("Part::Feature", name)
+    obj.Shape = s
+    if FreeCAD.GuiUp:
+        obj.ViewObject.ShapeColor = color
+    return obj
+
+add("LongPanel",         long_panel, (0.65,0.50,0.35))
+add("LongPanel_Flipped", long_panel, (0.55,0.40,0.25), V(eave_w+15, 0, 0))
+add("HipPanel",          hip_panel,  (0.65,0.50,0.35), V((eave_w+15)*2, 0, 0))
+
+doc.recompute()
+doc.saveAs(fc_path)
+print(f"Saved {fc_path}")
+
+for mesh_shape, path in [(long_panel, stl_long), (hip_panel, stl_hip)]:
+    m = MeshPart.meshFromShape(Shape=mesh_shape, LinearDeflection=0.05, AngularDeflection=0.1)
+    m.write(path)
+    print(f"Saved {path}")
+
+if FreeCAD.GuiUp:
+    import FreeCADGui
+    FreeCADGui.updateGui()
+    view = FreeCADGui.ActiveDocument.ActiveView
+    view.viewIsometric()
+    view.fitAll()
+    FreeCADGui.updateGui()
+    view.saveImage(img_path, 1600, 1000, "White")
+    print(f"Saved {img_path}")
+
+_result_ = "Done"
+'''
+
+result = proxy.execute(CODE)
+if result.get("success"):
+    print(result.get("stdout", ""))
+    print("OK:", result.get("result"))
+else:
+    print("ERROR:", result.get("error_message"))
+    print(result.get("error_traceback", ""))
+    sys.exit(1)

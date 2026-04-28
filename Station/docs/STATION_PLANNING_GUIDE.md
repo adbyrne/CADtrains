@@ -523,16 +523,16 @@ Have the following ready at session start:
 29. Ceiling+eave production pieces (3 rooms): waiting, ticket (from confirmed test), freight
 30. Roof backing panels: 2 trapezoidal + 2 triangular wedge; hip edges beveled 45°; tabs for ceiling channel
 31. Chimney (separate small print)
-32. Standard station variant — **after SK GitHub commit**. Port all SK changes into standard scripts:
-    - Interior window frames on all exterior walls (already in SK siding/passenger/gable scripts)
-    - Side bay window frames on floor piece
-    - BLDG_D = ft(15,0) = 52.6mm (standard depth, not 40mm SK limit)
-    - Standard freight door #8038 (not SK #8125)
-    - Gable end: #8070 double window (same as SK — already confirmed)
-    - Bay dimensions scale with standard TICKET_W (same proportional geometry)
-    - Platform split: Platform_A / Platform_B (bay notch position differs per orientation)
-    - Ceiling: regenerate at standard BLDG_D
+32. ✅ Standard station variant — **complete 2026-04-27**. Seven new `generate_std_*.py` scripts:
+    - WAITING_W ft(15,2)=53.1mm, FREIGHT_W ft(26,6)=92.8mm, BLDG_D ft(15,0)=52.6mm, BLDG_L=189.6mm
+    - Freight door #8038 (30.38×34.80mm; SK was #8125)
+    - Added waiting-room and freight-room windows on siding and passenger faces (W_WIN_CX=0.25×WAITING_W from gable; F_WIN_CX near TF/FT partition)
+    - Side bay window frames on floor piece (ported from SK)
+    - Interior window frames on all exterior walls (ported from SK)
+    - Platform: A/B orientation flag — wire holes at correct partition-wall X for each orientation
+    - Ceiling: slab 211.6mm × 100.6mm, all pendant/channel/grid positions scale automatically
+    - All STLs generated and ISO views complete
 
 ---
 
-*Updated: 2026-04-27 | SK scripts complete and committed. Standard variant work deferred until after SK GitHub commit — see item 32 above.*
+*Updated: 2026-04-27 | All SK and Standard station scripts complete. All STLs and ISO views generated.*

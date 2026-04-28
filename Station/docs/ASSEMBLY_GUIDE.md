@@ -150,7 +150,7 @@ All wires run from pendant through ceiling, along the wall channel notch (sealed
 
 ## Remaining Prints
 
-All SK prints are complete. No further scripts required.
+All SK prints are complete. Standard station scripts are ready — generate STLs before printing.
 
 ## External / Commercial Parts (not printed)
 
@@ -162,4 +162,62 @@ All SK prints are complete. No further scripts required.
 
 ---
 
-*Updated: 2026-04-27 | All SK prints complete. Chimney/flues/chair: external parts. Hip corner blocks not needed — single-piece ceiling covers corners. Next: ISO views; GitHub publish*
+## Standard Station Parts Inventory
+
+NY&E Layout | Standard prototype | HO scale 1:87 | Circa 1905
+Full dimensions: 189.6mm L × 52.6mm W | BLDG_L = 189mm, BLDG_D = 52.6mm
+
+### Printed parts (Standard)
+
+| Part | Qty | STL file | Notes |
+|------|-----|----------|-------|
+| Exterior wall — passenger face | 1 | `Std_PassengerWall.stl` | Bay opening full TICKET_W wide; W-window, W-door, F-window, F-door; wainscot, cap rail |
+| Exterior wall — siding face | 1 | `Std_SidingWall.stl` | W-window, #8033 door, #8028/69 office window, F-window, #8038 freight door; wire grooves; rabbet |
+| Exterior wall — freight end gable | 1 | `Std_GableWall.stl` | #8070 double window; 45° miters; print ×2 |
+| Exterior wall — waiting end gable | 1 | `Std_GableWall.stl` | Same file as freight gable |
+| Floor piece (basic) | 1 | `Std_FloorBasic.stl` | Partition walls, bay, plank grooves; full interior detail; 0.15mm layer height |
+| Floor piece (plain) | 1 | `Std_FloorBasic_Plain.stl` | Structural only; no furniture |
+| Ceiling+eave — full building | 1 | `Std_CeilingFull.stl` | Single lift-off piece: all three rooms + bay. 4mm tin grid; 4 pendants; all wall channels; 24mm side eaves, 11mm gable eaves |
+| Roof backing panel — long side | 2 | `Std_RoofPanel_Long.stl` | Trapezoidal ×2 (flip one 180°; half-lap tabs interlock). PANEL_T=2mm; wedge eave rib; 1 flat rib. |
+| Roof backing panel — hip end | 2 | `Std_RoofPanel_Hip.stl` | Triangular ×2. Wedge eave rib only. |
+| Platform — freight, orient A | 1 | `Std_Platform.stl` | 199.6×100.6×17mm; waiting end at X=0; NMRA Classic E=14mm |
+| Platform — freight, orient B | 1 | `Std_Platform_B.stl` | Same dims; freight end at X=0 (mirror) |
+| Platform — passenger, orient A | 1 | `Std_Platform_Passenger.stl` | 199.6×100.6×9mm; E=6mm |
+| Platform — passenger, orient B | 1 | `Std_Platform_B_Passenger.stl` | Mirror of passenger A |
+
+### Commercial parts (Standard — same as SK except freight door)
+
+| Part | # | Qty | Where used |
+|------|---|-----|-----------|
+| Exterior door | #8033 | 4 | Waiting passenger/siding, freight passenger/siding |
+| Interior door | #8032 | 2 | Waiting/ticket, ticket/freight |
+| Passenger window | #8028/69 | 8 | Freight passenger ×2, ticket passenger ×1, waiting passenger ×1, siding ×2, plus W-room siding ×1, F-room siding ×1 |
+| Gable double window | #8070 | 2 | Both end gable walls |
+| Freight door (Standard) | #8038 | 1 | Freight siding face (30.38×34.80mm; larger than SK #8125) |
+| Rafter tails (short) | #8147 | ~56 | Soffit face, 14mm spacing; canopy glue |
+| Slate shingles | #8135 | 3 packs | Individual strip rows applied to printed backing panels; more panels than SK |
+| Micro LEDs | — | 4–5 | One per pendant |
+| Chimney | — | 1 | Commercial casting |
+| Flue pipes | — | 2 | Brass rod ~1.5mm dia |
+| Operator chair | — | 1 | Commercial HO detail |
+
+### Key dimensions (Standard)
+
+| Dimension | Value |
+|-----------|-------|
+| Building | 189.6mm L × 52.6mm W |
+| Waiting room | ft(15,2) = 53.1mm |
+| Ticket office | ft(10,2) = 35.6mm |
+| Freight room | ft(26,6) = 92.8mm |
+| Wall height | 36.8mm (10'6") |
+| Wall thickness | 2.0mm |
+| Roof pitch | 5:12 (~22°) |
+| Ridge height | 10.95mm |
+| Eave overhang — long faces | 24mm |
+| Eave overhang — gable ends | 11mm |
+| Platform (freight) | 199.6mm L × 100.6mm W × 17mm H |
+| Platform (passenger) | 199.6mm L × 100.6mm W × 9mm H |
+
+---
+
+*Updated: 2026-04-27 | All SK prints complete. Standard station scripts complete — all STLs generated. Chimney/flues/chair: external parts.*
